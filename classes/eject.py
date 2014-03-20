@@ -52,5 +52,5 @@ class eject(object):
             while 1:
                 line = p.readline()
                 if not line: break
-                log.debug(line.strip())
+                self.log.debug(line.strip())
 
