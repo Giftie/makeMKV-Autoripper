@@ -19,24 +19,25 @@ from os import popen
 
 class eject(object):
 
+    def __init__(self, drive, debugLevel):
+        self.log = logger.logger("Eject", debugLevel)
+        self.eject(drive)
 
-    def eject(drive, debug):
+    def eject(drive):
         """
             Ejects the DVD drive
         """
-        log = logger.logger("Eject", debug)
-
-        log.debug("Ejecting drive: " + drive)
-        log.debug("Attempting OS detection")
+        self.log.debug("Ejecting drive: " + drive)
+        self.log.debug("Attempting OS detection")
 
         try:
             if platform == 'win32':
-                log.debug("OS detected as Windows")
+                self.log.debug("OS detected as Windows")
                 import ctypes
                 ctypes.windll.winmm.mciSendStringW("set cdaudio door open", None, drive, None)
 
             elif platform == 'darwin':
-                log.debug("OS detected as OSX")
+                self.log.debug("OS detected as OSX")
                 p = popen("drutil eject " + drive)
 
                 while 1:
@@ -45,8 +46,8 @@ class eject(object):
                     log.debug(line.strip())
 
             else:
-                log.debug("OS detected as Unix")
-                p = popen("eject -vr " + drive)
+                self.log.debug("OS detected as Unix")
+                p = popen("eject -vrn " + drive)
 
                 while 1:
                     line = p.readline()
@@ -54,6 +55,6 @@ class eject(object):
                     log.debug(line.strip())
 
         except:
-            log.info("Could not detect OS or eject CD tray")
+            self.log.info("Could not detect OS or eject CD tray")
 
 
