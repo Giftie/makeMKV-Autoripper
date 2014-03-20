@@ -14,8 +14,8 @@ Copyright (c) 2012, Jason Millward
 """
 
 import logger
-from sys import platform
-from os import popen
+import sys
+import os
 
 class eject(object):
 
@@ -23,38 +23,34 @@ class eject(object):
         self.log = logger.logger("Eject", debugLevel)
         self.eject(drive)
 
-    def eject(drive):
+    def eject(self, drive):
         """
             Ejects the DVD drive
         """
         self.log.debug("Ejecting drive: " + drive)
         self.log.debug("Attempting OS detection")
 
-        try:
-            if platform == 'win32':
-                self.log.debug("OS detected as Windows")
-                import ctypes
-                ctypes.windll.winmm.mciSendStringW("set cdaudio door open", None, drive, None)
 
-            elif platform == 'darwin':
-                self.log.debug("OS detected as OSX")
-                p = popen("drutil eject " + drive)
+        if sys.platform == 'win32':
+            self.log.debug("OS detected as Windows")
+            import ctypes
+            ctypes.windll.winmm.mciSendStringW("set cdaudio door open", None, drive, None)
 
-                while 1:
-                    line = p.readline()
-                    if not line: break
-                    log.debug(line.strip())
+        elif sys.platform == 'darwin':
+            self.log.debug("OS detected as OSX")
+            p = os.popen("drutil eject " + drive)
 
-            else:
-                self.log.debug("OS detected as Unix")
-                p = popen("eject -vrn " + drive)
+            while 1:
+                line = p.readline()
+                if not line: break
+                log.debug(line.strip())
 
-                while 1:
-                    line = p.readline()
-                    if not line: break
-                    log.debug(line.strip())
+        else:
+            self.log.debug("OS detected as Unix")
+            p = os.popen("eject -vrn " + drive)
 
-        except:
-            self.log.info("Could not detect OS or eject CD tray")
-
+            while 1:
+                line = p.readline()
+                if not line: break
+                log.debug(line.strip())
 
