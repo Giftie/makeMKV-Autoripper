@@ -44,9 +44,8 @@ Options:
 """
 
 import os
-import sys
 import yaml
-from classes import docopt, logger, makemkv, stopwatch
+from classes import docopt, eject, logger, makemkv, stopwatch
 from tendo import singleton
 
 __version__="1.6"
@@ -54,44 +53,6 @@ __version__="1.6"
 me = singleton.SingleInstance()
 DIR = os.path.dirname(os.path.realpath(__file__))
 CONFIG_FILE = "%s/settings.cfg" % DIR
-
-def eject(drive):
-    """
-        Ejects the DVD drive
-        Not really worth its own class
-    """
-    log = logger.logger("Eject", True)
-
-    log.debug("Ejecting drive: " + drive)
-    log.debug("Attempting OS detection")
-
-    try:
-        if sys.platform == 'win32':
-            log.debug("OS detected as Windows")
-            import ctypes
-            ctypes.windll.winmm.mciSendStringW("set cdaudio door open", None, drive, None)
-
-        elif sys.platform == 'darwin':
-            log.debug("OS detected as OSX")
-            p = os.popen("drutil eject " + drive)
-
-            while 1:
-                line = p.readline()
-                if not line: break
-                log.debug(line.strip())
-
-        else:
-            log.debug("OS detected as Unix")
-            p = os.popen("eject -vr " + drive)
-
-            while 1:
-                line = p.readline()
-                if not line: break
-                log.debug(line.strip())
-
-    except:
-        log.info("Could not detect OS or eject CD tray")
-
 
 def rip(config):
     """
@@ -131,7 +92,7 @@ def rip(config):
 
                 if status:
                     if config['eject']:
-                        eject(dvd['location'])
+                        eject.eject(dvd['location'], config['debug'])
 
                     log.info("It took %s minute(s) to complete the ripping of %s" %
                          (t.minutes, movie_title)
